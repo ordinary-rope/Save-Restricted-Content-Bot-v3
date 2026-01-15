@@ -27,14 +27,23 @@ MONGO_DB     = os.getenv("MONGO_DB", "")
 DB_NAME      = os.getenv("DB_NAME", "telegram_downloader")
 
 # ─── OWNER / CONTROL SETTINGS ───────────────────────────────────────────────────
-OWNER_ID     = list(map(int, os.getenv("OWNER_ID", "").split()))  # space-separated list
-STRING       = os.getenv("STRING", None)  # optional session string
-LOG_GROUP    = int(os.getenv("LOG_GROUP", "-1001234456"))
-FORCE_SUB    = int(os.getenv("FORCE_SUB", "-10012345567"))
+def _parse_owner_ids(raw: str) -> list[int]:
+    if not raw:
+        return []
+    normalized = raw.replace(",", " ")
+    return [int(value) for value in normalized.split() if value.strip()]
 
-# ─── SECURITY KEYS ──────────────────────────────────────────────────────────────
-MASTER_KEY   = os.getenv("MASTER_KEY", "gK8HzLfT9QpViJcYeB5wRa3DmN7P2xUq")  # session encryption
-IV_KEY       = os.getenv("IV_KEY", "s7Yx5CpVmE3F")  # decryption key
+
+def _parse_optional_chat_id(raw: str) -> int | None:
+    if not raw or raw.strip() in {"0", "none", "null"}:
+        return None
+    return int(raw)
+
+
+OWNER_ID     = _parse_owner_ids(os.getenv("OWNER_ID", ""))  # space or comma-separated list
+STRING       = os.getenv("STRING", None)  # optional session string
+LOG_GROUP    = _parse_optional_chat_id(os.getenv("LOG_GROUP", ""))
+FORCE_SUB    = _parse_optional_chat_id(os.getenv("FORCE_SUB", os.getenv("CHANNEL_ID", "")))
 
 # ─── COOKIES HANDLING ───────────────────────────────────────────────────────────
 YT_COOKIES   = os.getenv("YT_COOKIES", YTUB_COOKIES)
