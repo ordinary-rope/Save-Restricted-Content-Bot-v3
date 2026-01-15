@@ -5,7 +5,7 @@
 from shared_client import client as bot_client, app
 from telethon import events
 from datetime import timedelta
-from config import OWNER_ID
+from config import FORCE_SUB, LOG_GROUP, OWNER_ID
 from utils.func import add_premium_user, is_private_chat
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton as IK, InlineKeyboardMarkup as IKM
@@ -98,8 +98,18 @@ async def start_handler(client, message):
         [IK(b8, url=AC)]
     ])
 
+    owner_ids = ", ".join(str(owner_id) for owner_id in OWNER_ID) if OWNER_ID else "unset"
+    force_sub_value = str(FORCE_SUB) if FORCE_SUB is not None else "disabled"
+    log_group_value = str(LOG_GROUP) if LOG_GROUP is not None else "unset"
+    info_caption = (
+        f"{b6}\n\n"
+        f"**Owner ID(s):** {owner_ids}\n"
+        f"**Channel ID:** {force_sub_value}\n"
+        f"**Log Group ID:** {log_group_value}"
+    )
+
     await getattr(message, b4)(
         fd,
-        caption=b6,
+        caption=info_caption,
         reply_markup=kb
     )
