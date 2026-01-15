@@ -43,6 +43,7 @@
     },
     "FORCE_SUB": {
       "description": "Channel ID (with -100 prefix) for forced subscription",
+=======
       "value": "-1003648597288",
 =======
       "value": "",
