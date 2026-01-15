@@ -18,7 +18,6 @@ Please do start and max fork thanks
 ## 🔧 Features
 - Extract content from both public and private channels/groups.
 - Custom bot functionality added use `/setbot`
-- 128 bit encryption for data saving use @v3saverbot on telegram to generate `MASTER_KEY`, `IV_KEY`
 - Rename and forward content to other channels or users.
 - extract restricted content from other bots how to use format link like `https://botusername(without @)/message_id(get it from plus messenger)`
 - `/login` method along with `session` based login
@@ -73,9 +72,9 @@ To run the bot, you'll need to configure a few sensitive variables. Here's how t
 - **`API_ID`**: Your API ID from [telegram.org](https://my.telegram.org/auth).
 - **`API_HASH`**: Your API Hash from [telegram.org](https://my.telegram.org/auth).
 - **`BOT_TOKEN`**: Get your bot token from [@BotFather](https://t.me/botfather).
-- **`OWNER_ID`**: Use [@missrose_bot](https://t.me/missrose_bot) to get your user ID by sending `/info`.
-- **`CHANNEL_ID`**: The ID of the channel for forced subscription.
-- **`LOG_GROUP`**: A group or channel where the bot logs messages. Forward a message to [@userinfobot](https://t.me/userinfobot) to get your channel/group ID.
+- **`OWNER_ID`**: Use [@missrose_bot](https://t.me/missrose_bot) to get your user ID by sending `/info` (space or comma-separated).
+- **`FORCE_SUB`** (or **`CHANNEL_ID`**): The ID of the channel for forced subscription (optional, set to `0` or leave empty to disable).
+- **`LOG_GROUP`**: A group or channel where the bot logs messages. Forward a message to [@userinfobot](https://t.me/userinfobot) to get your channel/group ID (required).
 - **`MONGO_DB`**: A MongoDB URL for storing session data (recommended for security).
   
 ### Additional Configuration Options:
@@ -201,4 +200,3 @@ Visit the [Terms of Use](https://github.com/devgaganin/Save-Restricted-Content-B
 <h3 align="center">
   Developed with ❤️ by <a href="https://t.me/team_spy_pro"> Gagan </a>
 </h3>
-
