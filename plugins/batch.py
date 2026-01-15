@@ -114,54 +114,68 @@ async def get_msg(c, u, i, d, lt):
                 print(f'Error fetching public message: {e}')
                 return None
         else:
-            if u:
-                try:
-                    async for _ in u.get_dialogs(limit=50): pass
-                    
-                    # Try with -100 prefix first
-                    if str(i).startswith('-100'):
-                        chat_id_100 = i
-                        # For - prefix, remove -100 and add just -
-                        base_id = str(i)[4:]  # Remove -100
-                        chat_id_dash = f"-{base_id}"
-                    elif i.isdigit():
-                        chat_id_100 = f"-100{i}"
-                        chat_id_dash = f"-{i}"
-                    else:
-                        chat_id_100 = i
-                        chat_id_dash = i
-                    
-                    # Try -100 format first
+            if not u and not c:
+                return None
+            try:
+                if u:
+                    async for _ in u.get_dialogs(limit=50):
+                        pass
+
+                # Try with -100 prefix first
+                id_str = str(i)
+                if id_str.startswith('-100'):
+                    chat_id_100 = int(id_str)
+                    # For - prefix, remove -100 and add just -
+                    base_id = id_str[4:]  # Remove -100
+                    chat_id_dash = int(f"-{base_id}")
+                elif id_str.lstrip('-').isdigit():
+                    base_id = id_str.lstrip('-')
+                    chat_id_100 = int(f"-100{base_id}")
+                    chat_id_dash = int(f"-{base_id}")
+                else:
+                    chat_id_100 = i
+                    chat_id_dash = i
+
+                async def fetch_from(client, chat_id):
+                    if not client:
+                        return None
                     try:
-                        result = await u.get_messages(chat_id_100, d)
+                        result = await client.get_messages(chat_id, d)
                         if result and not getattr(result, "empty", False):
                             return result
                     except Exception:
-                        pass
-                    
-                    # Try - format second
-                    try:
-                        result = await u.get_messages(chat_id_dash, d)
-                        if result and not getattr(result, "empty", False):
-                            return result
-                    except Exception:
-                        pass
-                    
-                    # Final fallback - refresh dialogs and try original
-                    try:
-                        async for _ in u.get_dialogs(limit=200): pass
-                        result = await u.get_messages(i, d)
-                        if result and not getattr(result, "empty", False):
-                            return result
-                    except Exception:
-                        pass
-                    
+                        return None
                     return None
-                            
-                except Exception as e:
-                    print(f'Private channel error: {e}')
-                    return None
-            return None
+
+                # Try -100 format first
+                result = await fetch_from(u, chat_id_100)
+                if not result:
+                    result = await fetch_from(c, chat_id_100)
+                if result:
+                    return result
+
+                # Try - format second
+                result = await fetch_from(u, chat_id_dash)
+                if not result:
+                    result = await fetch_from(c, chat_id_dash)
+                if result:
+                    return result
+
+                # Final fallback - refresh dialogs and try original
+                if u:
+                    try:
+                        async for _ in u.get_dialogs(limit=200):
+                            pass
+                    except Exception:
+                        pass
+                result = await fetch_from(u, i)
+                if not result:
+                    result = await fetch_from(c, i)
+                return result
+
+            except Exception as e:
+                print(f'Private channel error: {e}')
+                return None
     except Exception as e:
         print(f'Error fetching message: {e}')
         return None
@@ -285,7 +299,24 @@ async def process_msg(c, u, m, d, lt, uid, i):
                 file_name = f"{time.time()}.jpg"
                 c_name = sanitize(file_name)
     
-            f = await u.download_media(m, file_name=c_name, progress=prog, progress_args=(c, d, p.id, st))
+            download_client = u or c
+            try:
+                f = await download_client.download_media(
+                    m,
+                    file_name=c_name,
+                    progress=prog,
+                    progress_args=(c, d, p.id, st)
+                )
+            except Exception:
+                if c and c is not download_client:
+                    f = await c.download_media(
+                        m,
+                        file_name=c_name,
+                        progress=prog,
+                        progress_args=(c, d, p.id, st)
+                    )
+                else:
+                    raise
             
             if not f:
                 await c.edit_message_text(d, p.id, 'Failed.')
@@ -481,7 +512,7 @@ async def text_handler(c, m):
                 res = await process_msg(ubot, uc, msg, str(m.chat.id), lt, uid, i)
                 await pt.edit(f'1/1: {res}')
             else:
-                await pt.edit('Message not found')
+                await pt.edit('Message not found. Make sure the bot/user is in the chat and the link is correct.')
         except Exception as e:
             await pt.edit(f'Error: {str(e)[:50]}')
         finally:
@@ -502,6 +533,7 @@ async def text_handler(c, m):
         Z[uid].update({'step': 'process', 'did': str(m.chat.id), 'num': count})
         i, s, n, lt = Z[uid]['cid'], Z[uid]['sid'], Z[uid]['num'], Z[uid]['lt']
         success = 0
+        not_found = 0
 
         pt = await m.reply_text('Processing batch...')
         uc = await get_uclient(uid)
@@ -543,7 +575,7 @@ async def text_handler(c, m):
                         if 'Done' in res or 'Copied' in res or 'Sent' in res:
                             success += 1
                     else:
-                        pass
+                        not_found += 1
                 except Exception as e:
                     try: await pt.edit(f'{j+1}/{n}: Error - {str(e)[:30]}')
                     except: pass
@@ -551,7 +583,9 @@ async def text_handler(c, m):
                 await asyncio.sleep(10)
             
             if j+1 == n:
-                await m.reply_text(f'Batch Completed ✅ Success: {success}/{n}')
+                await m.reply_text(
+                    f'Batch Completed ✅ Success: {success}/{n} | Not found: {not_found}/{n}'
+                )
         
         finally:
             await remove_active_batch(uid)

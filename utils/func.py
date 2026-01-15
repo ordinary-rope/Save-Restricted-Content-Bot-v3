@@ -56,15 +56,22 @@ def hhmmss(seconds):
     return time.strftime('%H:%M:%S', time.gmtime(seconds))
 
 
-def E(L):   
-    private_match = re.match(r'https://t\.me/c/(\d+)/(?:\d+/)?(\d+)', L)
-    public_match = re.match(r'https://t\.me/([^/]+)/(?:\d+/)?(\d+)', L)
-    
+def E(L):
+    L = L.strip()
+    private_match = re.match(
+        r'^(?:https?://)?(?:t\.me|telegram\.me)/c/(\d+)/(?:\d+/)?(\d+)(?:\?.*)?$',
+        L
+    )
+    public_match = re.match(
+        r'^(?:https?://)?(?:t\.me|telegram\.me)/([^/]+)/(?:\d+/)?(\d+)(?:\?.*)?$',
+        L
+    )
+
     if private_match:
-        return f'-100{private_match.group(1)}', int(private_match.group(2)), 'private'
-    elif public_match:
+        return int(f'-100{private_match.group(1)}'), int(private_match.group(2)), 'private'
+    if public_match:
         return public_match.group(1), int(public_match.group(2)), 'public'
-    
+
     return None, None, None
 
 
