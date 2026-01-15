@@ -43,12 +43,13 @@
     },
     "FORCE_SUB": {
       "description": "Channel ID (with -100 prefix) for forced subscription",
-      "value": "-1003648597288",
       "required": false
     },
     "LOG_GROUP": {
       "description": "Log channel/group ID (with -100 prefix) where the bot will send logs",
       "value": "-1003624874334",
+=======
+      "value": "",
       "required": true
     },
     "YT_COOKIES": {
