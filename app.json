@@ -8,27 +8,27 @@
   "env": {
     "API_ID": {
       "description": "Get this value from https://my.telegram.org",
-      "value": "",
+      "value": "33421853",
       "required": true
     },
     "API_HASH": {
       "description": "Get this value from https://my.telegram.org",
-      "value": "",
+      "value": "f4f4ffcd0ce2fc289bc56b7c75c9dbd6",
       "required": true
     },
     "BOT_TOKEN": {
       "description": "Bot token from @BotFather",
-      "value": "",
+      "value": "8552465907:AAEVazKYX8P9hGz1JbkED7AKalBPZ3hKKtU",
       "required": true
     },
     "MONGO_DB": {
       "description": "MongoDB connection URL (https://cloud.mongodb.com)",
-      "value": "",
+      "value": "mongodb+srv://save_restrict:LqurvtzIKr8gaadZ@cluster0.iyxnhrq.mongodb.net/save_restrict_db?retryWrites=true&w=majority&appName=Cluster0",
       "required": true
     },
     "OWNER_ID": {
       "description": "User ID(s) to be set as bot owner(s), separated by space (e.g., 1234 5678)",
-      "value": "",
+      "value": "2115233976",
       "required": true
     },
     "DB_NAME": {
@@ -43,11 +43,15 @@
     },
     "FORCE_SUB": {
       "description": "Channel ID (with -100 prefix) for forced subscription",
+      "value": "-1003648597288",
+=======
       "value": "",
       "required": false
     },
     "LOG_GROUP": {
       "description": "Log channel/group ID (with -100 prefix) where the bot will send logs",
+      "value": "-1003624874334",
+=======
       "value": "",
       "required": true
     },
